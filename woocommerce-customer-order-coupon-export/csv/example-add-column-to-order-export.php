@@ -1,43 +1,45 @@
 <?php // only copy this line if needed
 
 /**
- * Add `example` column header and remove the `billing_company` column
+ * Step 1. Add `example` column header and remove the `billing_company` column
  *
  * @param array $column_headers the original column headers
- * @param \WC_Customer_Order_CSV_Export_Generator $csv_generator the generator instance
+ * @param \CSV_Export_Generator $csv_generator the generator instance
  * @return array the updated column headers
  */
 function sv_wc_csv_export_modify_column_headers_example( $column_headers, $csv_generator ) {
 
+	// add the new `example` column header
 	$column_headers['example'] = 'example';
 
-	// remove the `billing_company` column
+	// example of removing a column from the export (e.g. the `billing_company` column)
 	unset( $column_headers['billing_company'] );
 
 	return $column_headers;
 }
-add_filter( 'wc_customer_order_csv_export_order_headers', 'sv_wc_csv_export_modify_column_headers_example', 10, 2 );
+add_filter( 'wc_customer_order_export_csv_order_headers', 'sv_wc_csv_export_modify_column_headers_example', 10, 2 );
 
 
 /**
- * Add `example` column data
+ * Step 2. Add `example` column data
  *
  * @param array $order_data the original column data
  * @param \WC_Order $order the order object
- * @param \WC_Customer_Order_CSV_Export_Generator $csv_generator the generator instance
+ * @param \CSV_Export_Generator $csv_generator the generator instance
  * @return array the updated column data
  */
 function sv_wc_csv_export_modify_row_data_example( $order_data, $order, $csv_generator ) {
 
+	// Example showing how to extract order metadata into it's own column
 	$meta_key_example = is_callable( array( $order, 'get_meta' ) ) ? $order->get_meta( 'meta_key_example' ) : $order->meta_key_example;
 
 	$custom_data = array(
 		'example' => $meta_key_example,
 	);
 
-	return sv_wc_csv_export_add_custom_order_data( $order_data, $custom_data );
+	return sv_wc_csv_export_add_custom_order_data( $order_data, $custom_data, $csv_generator );
 }
-add_filter( 'wc_customer_order_csv_export_order_row', 'sv_wc_csv_export_modify_row_data_example', 10, 3 );
+add_filter( 'wc_customer_order_export_csv_order_row', 'sv_wc_csv_export_modify_row_data_example', 10, 3 );
 
 
 if ( ! function_exists( 'sv_wc_csv_export_add_custom_order_data' ) ) :
@@ -47,7 +49,7 @@ if ( ! function_exists( 'sv_wc_csv_export_add_custom_order_data' ) ) :
  *
  * @param array $order_data the original column data that may be in One Row per Item format
  * @param array $custom_data the custom column data being merged into the column data
- * @param \WC_Customer_Order_CSV_Export_Generator $csv_generator the generator instance
+ * @param \CSV_Export_Generator $csv_generator the generator instance
  * @return array the updated column data
  */
 function sv_wc_csv_export_add_custom_order_data( $order_data, $custom_data, $csv_generator ) {
@@ -75,7 +77,7 @@ if ( ! function_exists( 'sv_wc_csv_export_is_one_row' ) ) :
 /**
  * Helper function to check the export format
  *
- * @param \WC_Customer_Order_CSV_Export_Generator $csv_generator the generator instance
+ * @param \CSV_Export_Generator $csv_generator the generator instance
  * @return bool - true if this is a one row per item format
  */
 function sv_wc_csv_export_is_one_row( $csv_generator ) {
